@@ -34,26 +34,19 @@ def get_child_string(root):
     if (root.children != None):
         length = len(root.children)
     else:
-        length= 0
-    i = 1
-    while (i <= length ):
-        list= list + str(root.children[i].get_value()) + ' '
-        i = i+1
+        length = 0
+    k = 1
+    j = 1
+    while (j <= length):
+        while (k <= length):
+            list = list + str(root.children[k].get_value()) + ' '
+            k = k + 1
+        list = list + get_child_string(root.children[j])
+        j = j + 1
     return list
 
 def breadth_first_search(root):
     list = str(root.value) +' ' + get_child_string(root)
-    length = len(root.children)
-    k=1
-    while (root.children != None):
-            j=1
-            length= len(root.children)
-            while (j <= length):
-                list = list + get_child_string(root.children[j])
-                j= j+1
-            j=1
-            root = root.children[j] # makes root D
-            #k = k + 1
     return list
 
 def tester():
@@ -92,9 +85,9 @@ def tester():
     print str(breadth_first_search(a)) + ' should be 5 7.'
     print str(breadth_first_search(c)) + ' should be 1 2 3 4 5 6 7 8 9 10'
 
-    print str(get_child_string(c)) + ' should be 2 3'
-    print str(get_child_string(d)) + ' should be 4 5'
-    print str(get_child_string(e)) + ' should be 6 7'
+    print str(get_child_string(c)) + ' should be 2 3 4 5 6 7 8 9 10'
+    print str(get_child_string(d)) + ' should be 4 5 8 9'
+    print str(get_child_string(e)) + ' should be 6 7 10'
     print str(get_child_string(f)) + ' should be  '
     print str(get_child_string(g)) + ' should be 8 9'
     print str(get_child_string(i)) + ' should be 10'
