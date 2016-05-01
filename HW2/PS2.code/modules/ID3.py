@@ -194,37 +194,19 @@ def split_on_nominal(data_set, attribute):
     ========================================================================================================
     '''
     
-    dictionary= {}
-    key = 0    
-    dictionary.setdefault(key,[])    
-    for index in range (len(data_set)):    
-        if data_set[index][attribute] is 0:
-             dictionary[0].append(data_set[index])
-        elif data_set[index][attribute] is 1:
-             key = 1    
-             dictionary.setdefault(key,[])            
-             dictionary[1].append(data_set[index])
-        elif data_set[index][attribute] is 2:
-             key = 2    
-             dictionary.setdefault(key,[])
-             dictionary[2].append(data_set[index])
-        elif data_set[index][attribute] is 3:
-             key = 3    
-             dictionary.setdefault(key,[])
-             dictionary[3].append(data_set[index])
-        elif data_set[index][attribute] is 4:
-             key = 4    
-             dictionary.setdefault(key,[])
-             dictionary[4].append(data_set[index])
+    dictionary= {}    
+    for index in range (len(data_set)): 
+         key = data_set[index][attribute]   
+         dictionary.setdefault(key,[])            
+         dictionary[key].append(data_set[index])
              
     return dictionary
     
 # ======== Test case =============================
 data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
-print split_on_nominal(data_set, attr) 
-#== {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
-# data_set, attr = [[1, 2], [1, 0], [0, 0], [1, 3], [0, 2], [0, 3], [0, 4], [0, 4], [1, 2], [0, 1]], 1
-# split on_nominal(data_set, attr) == {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]}
+print split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
+data_set, attr = [[1, 2], [1, 0], [0, 0], [1, 3], [0, 2], [0, 3], [0, 4], [0, 4], [1, 2], [0, 1]], 1
+print split_on_nominal(data_set, attr) == {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]}
 
 def split_on_numerical(data_set, attribute, splitting_value):
     '''
