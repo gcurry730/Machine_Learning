@@ -45,21 +45,24 @@ def grader(homogenous=False,p_best_attribute=False,mode=False,entropy=False,gain
 	if p_best_attribute:
 		name = "pick_best_attribute"
 		print title,name,title
-		numerical_splits_count = [20,20]
+		numerical_splits_count = [[20,20],[20,20],[20,20,20,20],[20,20,20,20]]
 		a_meta = [[{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
-		,[{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}]]
-
+		,[{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}],
+                 [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}, {'name': "attitude", 'is_nominal': False}],
+                 [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}, {'name': "attitude", 'is_nominal': False}]]
 		d_set = [[[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [0, 0.51], [1, 0.4]],
-		[[0, 0], [1, 0], [0, 2], [0, 2], [0, 3], [1, 1], [0, 4], [0, 2], [1, 2], [1, 5]]]
-		result = [(1, 0.51),(1, False)]
+		[[0, 0], [1, 0], [0, 2], [0, 2], [0, 3], [1, 1], [0, 4], [0, 2], [1, 2], [1, 5]],
+                [[0, 0, 0.1], [1, 0, 0.2], [0, 2, 0.2], [0, 2, 0.2], [0, 3, 0.1], [1, 1, 0.1], [0, 4, 0.1], [0, 2, 0.1], [1, 2, 0.1], [1, 5, 0.1]],
+                [[0, 0, 0.1], [1, 0, 0.2], [0, 2, 0.05], [0, 2, 0.14], [0, 3, 0.3], [1, 1, 0.3], [0, 4, 0.1], [0, 2, 0.1], [1, 2, 0.29], [1, 5, 0.5]] ]
+		result = [(1, 0.51),(1, False),(1,False),(2, 0.2)]
 		total = 0
-		for i in xrange(2):
-			if pick_best_attribute(d_set[i], a_meta[i], numerical_splits_count) == result[i]:
+		for i in xrange(4):
+			if pick_best_attribute(d_set[i], a_meta[i], numerical_splits_count[i]) == result[i]:
 				total += 1
 				print "Passed %d"%(i+1)
 			else:
 				print "Failed %d"%(i+1)
-		print "Not all tests were met please look at %s"%name if total != 2 else "All tests passed"
+		print "Not all tests were met please look at %s"%name if total != 4 else "All tests passed"
 	if mode:
 		name = "mode"
 		print title,name,title
@@ -140,10 +143,10 @@ def check_gain_ratio_nom():
 
 def check_gain_ratio_num():
 	step = [2,4,1]
-	data_set = [[[1,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]]
+	data_set = [[[0,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]]
 	,[[1, 0.35], [1, 0.24], [0, 0.67], [0, 0.36], [1, 0.94], [1, 0.4], [1, 0.15], [0, 0.1], [1, 0.61], [1, 0.17]]
 	,[[1, 0.1], [0, 0.29], [1, 0.03], [0, 0.47], [1, 0.25], [1, 0.12], [1, 0.67], [1, 0.73], [1, 0.85], [1, 0.25]]]
-	result = [(0.21744375685031775, 0.64),(0.11689800358692547, 0.94),(0.23645279766002802, 0.29)]
+	result = [(0.31918053332474033, 0.64),(0.11689800358692547, 0.94),(0.23645279766002802, 0.29)]
 	total = 0
 	for i in xrange(3):
 		GRNum = gain_ratio_numeric(data_set[i],1,step[i])

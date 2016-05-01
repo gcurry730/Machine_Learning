@@ -1,6 +1,7 @@
 import math
 from node import Node
 import sys
+from collections import defaultdict
 
 def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     '''
@@ -28,15 +29,23 @@ def check_homogenous(data_set):
     Output: Return either the homogenous attribute or None
     ========================================================================================================
     '''
-    # Your code here
-    pass
+    count = 0    
+    for index in range(len(data_set)-1):
+        if data_set[index][0] is data_set[index + 1][0]:
+            count = count + 1    
+    if count is (len(data_set)-1):       
+        return data_set[0][0]
+    else:
+        return
+        
 # ======== Test Cases =============================
-# data_set = [[0],[1],[1],[1],[1],[1]]
-# check_homogenous(data_set) ==  None
-# data_set = [[0],[1],[None],[0]]
-# check_homogenous(data_set) ==  None
-# data_set = [[1],[1],[1],[1],[1],[1]]
-# check_homogenous(data_set) ==  1
+#data_set = [[0],[1],[1],[1],[1],[1]]
+#print check_homogenous(data_set) == None
+#data_set = [[0],[1],[None],[0]]
+#print check_homogenous(data_set) ==  None
+#data_set = [[1],[1],[1],[1],[1],[1]]
+#print check_homogenous(data_set) ==  1
+
 
 def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
     '''
@@ -75,13 +84,23 @@ def mode(data_set):
     Output: mode of index 0.
     ========================================================================================================
     '''
-    # Your code here
-    pass
+    count_1 = 0
+    count_0 = 0    
+    for index in range(len(data_set)):
+        if data_set[index][0] is 1:
+            count_1 = count_1 + 1
+        if data_set[index][0] is 0:
+            count_0 = count_0 + 1
+    if count_1 >= count_0:
+        return 1
+    else:
+        return 0 
+    
 # ======== Test case =============================
-# data_set = [[0],[1],[1],[1],[1],[1]]
-# mode(data_set) == 1
-# data_set = [[0],[1],[0],[0]]
-# mode(data_set) == 0
+#data_set = [[0],[1],[1],[1],[1],[1]]
+#print mode(data_set) == 1
+#data_set = [[0],[1],[0],[0]]
+#print mode(data_set) == 0
 
 def entropy(data_set):
     '''
@@ -93,16 +112,31 @@ def entropy(data_set):
     Output: Returns entropy. See Textbook for formula
     ========================================================================================================
     '''
-
+    Nm = len(data_set)
+    Nm_1 = 0
+    Nm_0 = 0
+    for index in range(Nm):
+        if data_set[index][0] is 1:
+            Nm_1 = Nm_1 + 1 
+        elif data_set[index][0] is 0:
+            Nm_0= Nm_0 + 1 
+    P1 = Nm_1/float(Nm)
+    P2 = Nm_0/float(Nm)
+    if P1 <= 0:
+        P1 = 1
+    if P2 <= 0:
+        P2 = 1
+    return -P1*math.log(P1,2)+ -P2*math.log(P2,2)
+   
+   # are these always binary?
 
 # ======== Test case =============================
-# data_set = [[0],[1],[1],[1],[0],[1],[1],[1]]
-# entropy(data_set) == 0.811
-# data_set = [[0],[0],[1],[1],[0],[1],[1],[0]]
-# entropy(data_set) == 1.0
-# data_set = [[0],[0],[0],[0],[0],[0],[0],[0]]
-# entropy(data_set) == 0
-
+#data_set = [[0],[1],[1],[1],[0],[1],[1],[1]]
+#print entropy(data_set) == 0.811
+#data_set = [[0],[0],[1],[1],[0],[1],[1],[0]]
+#print entropy(data_set) == 1.0
+#data_set = [[0],[0],[0],[0],[0],[0],[0],[0]]
+#print entropy(data_set) == 0
 
 def gain_ratio_nominal(data_set, attribute):
     '''
@@ -159,11 +193,36 @@ def split_on_nominal(data_set, attribute):
     Output: Dictionary of all values pointing to a list of all the data with that attribute
     ========================================================================================================
     '''
-    # Your code here
-    pass
+    
+    dictionary= {}
+    key = 0    
+    dictionary.setdefault(key,[])    
+    for index in range (len(data_set)):    
+        if data_set[index][attribute] is 0:
+             dictionary[0].append(data_set[index])
+        elif data_set[index][attribute] is 1:
+             key = 1    
+             dictionary.setdefault(key,[])            
+             dictionary[1].append(data_set[index])
+        elif data_set[index][attribute] is 2:
+             key = 2    
+             dictionary.setdefault(key,[])
+             dictionary[2].append(data_set[index])
+        elif data_set[index][attribute] is 3:
+             key = 3    
+             dictionary.setdefault(key,[])
+             dictionary[3].append(data_set[index])
+        elif data_set[index][attribute] is 4:
+             key = 4    
+             dictionary.setdefault(key,[])
+             dictionary[4].append(data_set[index])
+             
+    return dictionary
+    
 # ======== Test case =============================
-# data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
-# split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
+data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
+print split_on_nominal(data_set, attr) 
+#== {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
 # data_set, attr = [[1, 2], [1, 0], [0, 0], [1, 3], [0, 2], [0, 3], [0, 4], [0, 4], [1, 2], [0, 1]], 1
 # split on_nominal(data_set, attr) == {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]}
 
