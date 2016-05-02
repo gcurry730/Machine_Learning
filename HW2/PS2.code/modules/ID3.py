@@ -138,51 +138,6 @@ def entropy(data_set):
 #data_set = [[0],[0],[0],[0],[0],[0],[0],[0]]
 #print entropy(data_set) == 0
 
-def gain_ratio_nominal(data_set, attribute):
-    '''
-    ========================================================================================================
-    Input:  Subset of data_set, index for a nominal attribute
-    ========================================================================================================
-    Job:    Finds the gain ratio of a nominal attribute in relation to the variable we are training on.
-    ========================================================================================================
-    Output: Returns gain_ratio. See https://en.wikipedia.org/wiki/Information_gain_ratio
-    ========================================================================================================
-    '''
-    # Your code here
-    pass
-# ======== Test case =============================
-# data_set, attr = [[1, 2], [1, 0], [1, 0], [0, 2], [0, 2], [0, 0], [1, 3], [0, 4], [0, 3], [1, 1]], 1
-# gain_ratio_nominal(data_set,attr) == 0.11470666361703151
-# data_set, attr = [[1, 2], [1, 2], [0, 4], [0, 0], [0, 1], [0, 3], [0, 0], [0, 0], [0, 4], [0, 2]], 1
-# gain_ratio_nominal(data_set,attr) == 0.2056423328155741
-# data_set, attr = [[0, 3], [0, 3], [0, 3], [0, 4], [0, 4], [0, 4], [0, 0], [0, 2], [1, 4], [0, 4]], 1
-# gain_ratio_nominal(data_set,attr) == 0.06409559743967516
-
-def gain_ratio_numeric(data_set, attribute, steps):
-    '''
-    ========================================================================================================
-    Input:  Subset of data set, the index for a numeric attribute, and a step size for normalizing the data.
-    ========================================================================================================
-    Job:    Calculate the gain_ratio_numeric and find the best single threshold value
-            The threshold will be used to split examples into two sets
-                 those with attribute value GREATER THAN OR EQUAL TO threshold
-                 those with attribute value LESS THAN threshold
-            Use the equation here: https://en.wikipedia.org/wiki/Information_gain_ratio
-            And restrict your search for possible thresholds to examples with array index mod(step) == 0
-    ========================================================================================================
-    Output: This function returns the gain ratio and threshold value
-    ========================================================================================================
-    '''
-    # Your code here
-    pass
-# ======== Test case =============================
-# data_set,attr,step = [[1,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]], 1, 2
-# gain_ratio_numeric(data_set,attr,step) == (0.21744375685031775, 0.64)
-# data_set,attr,step = [[1, 0.35], [1, 0.24], [0, 0.67], [0, 0.36], [1, 0.94], [1, 0.4], [1, 0.15], [0, 0.1], [1, 0.61], [1, 0.17]], 1, 4
-# gain_ratio_numeric(data_set,attr,step) == (0.11689800358692547, 0.94)
-# data_set,attr,step = [[1, 0.1], [0, 0.29], [1, 0.03], [0, 0.47], [1, 0.25], [1, 0.12], [1, 0.67], [1, 0.73], [1, 0.85], [1, 0.25]], 1, 1
-# gain_ratio_numeric(data_set,attr,step) == (0.23645279766002802, 0.29)
-
 def split_on_nominal(data_set, attribute):
     '''
     ========================================================================================================
@@ -207,6 +162,81 @@ def split_on_nominal(data_set, attribute):
 #print split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
 #data_set, attr = [[1, 2], [1, 0], [0, 0], [1, 3], [0, 2], [0, 3], [0, 4], [0, 4], [1, 2], [0, 1]], 1
 #print split_on_nominal(data_set, attr) == {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]}
+
+def gain_ratio_nominal(data_set, attribute):
+    '''
+    ========================================================================================================
+    Input:  Subset of data_set, index for a nominal attribute
+    ========================================================================================================
+    Job:    Finds the gain ratio of a nominal attribute in relation to the variable we are training on.
+    ========================================================================================================
+    Output: Returns gain_ratio. See https://en.wikipedia.org/wiki/Information_gain_ratio
+    ========================================================================================================
+    '''
+    # getting the highest valued atrribute to look for    
+    attr_max = 0
+    for i in range(len(data_set)):
+        if data_set[i][attribute] > attr_max:
+            attr_max = data_set[i][attribute]
+   
+    # creating the new ordered data set        
+    new_data_set = []
+    new_data_set_temp = []
+    for attr in range(attr_max+1):
+        for j in range(len(data_set)):
+            if data_set[j][attribute] is attr:
+                new_data_set_temp.append(data_set[j])
+        if len(new_data_set_temp) > 0:
+            new_data_set.append(new_data_set_temp)
+        new_data_set_temp = []
+
+    # calculating gain ratio 
+    SUM_IG = 0.0  
+    SUM_IV = 0.0
+    length = len(new_data_set)
+    for index in range (length):
+        ratio= len(new_data_set[index])/float(len(data_set))
+        SUM_IG = SUM_IG + ratio*entropy(new_data_set[index])
+        SUM_IV = SUM_IV + ratio*math.log(ratio, 2)
+    IG =  entropy(data_set) - SUM_IG
+    IV = -SUM_IV
+    return IG/IV
+    
+    
+# ======== Test case =============================
+data_set, attr = [[1, 2], [1, 0], [1, 0], [0, 2], [0, 2], [0, 0], [1, 3], [0, 4], [0, 3], [1, 1]], 1
+print gain_ratio_nominal(data_set,attr)== 0.11470666361703151
+data_set, attr = [[1, 2], [1, 2], [0, 4], [0, 0], [0, 1], [0, 3], [0, 0], [0, 0], [0, 4], [0, 2]], 1
+print gain_ratio_nominal(data_set,attr)== 0.2056423328155741
+data_set, attr = [[0, 3], [0, 3], [0, 3], [0, 4], [0, 4], [0, 4], [0, 0], [0, 2], [1, 4], [0, 4]], 1
+print gain_ratio_nominal(data_set,attr)== 0.06409559743967516
+
+def gain_ratio_numeric(data_set, attribute, steps):
+    '''
+    ========================================================================================================
+    Input:  Subset of data set, the index for a numeric attribute, and a step size for normalizing the data.
+    ========================================================================================================
+    Job:    Calculate the gain_ratio_numeric and find the best single threshold value
+            The threshold will be used to split examples into two sets
+                 those with attribute value GREATER THAN OR EQUAL TO threshold
+                 those with attribute value LESS THAN threshold
+            Use the equation here: https://en.wikipedia.org/wiki/Information_gain_ratio
+            And restrict your search for possible thresholds to examples with array index mod(step) == 0
+    ========================================================================================================
+    Output: This function returns the gain ratio and threshold value
+    ========================================================================================================
+    '''
+    # Your code here
+    pass
+# ======== Test case =============================
+# data_set,attr,step = [[0,0.05], [1,0.17], [1,0.64], [0,0.38], [0,0.19], [1,0.68], [1,0.69], [1,0.17], [1,0.4], [0,0.53]], 1, 2
+# gain_ratio_numeric(data_set,attr,step) == (0.21744375685031775, 0.64)
+# data_set,attr,step = [[1, 0.35], [1, 0.24], [0, 0.67], [0, 0.36], [1, 0.94], [1, 0.4], [1, 0.15], [0, 0.1], [1, 0.61], [1, 0.17]], 1, 4
+# gain_ratio_numeric(data_set,attr,step) == (0.11689800358692547, 0.94)
+# data_set,attr,step = [[1, 0.1], [0, 0.29], [1, 0.03], [0, 0.47], [1, 0.25], [1, 0.12], [1, 0.67], [1, 0.73], [1, 0.85], [1, 0.25]], 1, 1
+# gain_ratio_numeric(data_set,attr,step) == (0.23645279766002802, 0.29)
+
+
 
 def split_on_numerical(data_set, attribute, splitting_value):
     '''

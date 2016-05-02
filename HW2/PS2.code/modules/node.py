@@ -35,17 +35,14 @@ class Node:
         '''
         given a single observation, will return the output of the tree
         '''
-        if self.label is 0: 
-            #print 'got zero'  
+        if self.label is 0:  
             return 0 
             
         elif self.label is 1:
-            #print 'got one'           
             return 1
             
         else: 
-            #print 'made it here' 
-            self.children[instance[self.decision_attribute]].classify(instance)
+            return self.children[instance[self.decision_attribute]].classify(instance)
     
     
     def print_tree(self, indent = 0):
