@@ -1,23 +1,30 @@
 import math
 from node import Node
 import sys
-from collections import defaultdict
+#import ID3 
+#from collections import defaultdict
 
-def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
-    '''
-    See Textbook for algorithm.
-    Make sure to handle unknown values, some suggested approaches were
-    given in lecture.
-    ========================================================================================================
-    Input:  A data_set, attribute_metadata, maximum number of splits to consider for numerical attributes,
-	maximum depth to search to (depth = 0 indicates that this node should output a label)
-    ========================================================================================================
-    Output: The node representing the decision tree learned over the given data set
-    ========================================================================================================
+'''
+FUNCTIONS
+'''
 
+def dict_to_set(data_set, attribute):
     '''
-    # Your code here
-    pass
+    ========================================================================================================
+    Input:  Subset of data_set in dictionary form, index for a nominal attribute
+    ========================================================================================================
+    Job:    takes the dictionary entries and makes a list of lists
+    ========================================================================================================
+    Output: Returns an  new data_set in list form
+    ========================================================================================================
+    '''
+    new_list = []
+    for key, value in data_set.iteritems():
+        new_list = new_list + [value]
+    return new_list
+    
+#new_data_set = {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]} 
+#print dict_to_set(new_data_set, 1)
 
 def check_homogenous(data_set):
     '''
@@ -80,7 +87,34 @@ def entropy(data_set):
 #data_set = [[0],[0],[1],[1],[0],[1],[1],[0]]
 #print entropy(data_set) == 1.0
 #data_set = [[0],[0],[0],[0],[0],[0],[0],[0]]
-#print entropy(data_set) == 0        
+#print entropy(data_set) == 0  
+
+
+def split_on_nominal(data_set, attribute):
+    '''
+    ========================================================================================================
+    Input:  subset of data set, the index for a nominal attribute.
+    ========================================================================================================
+    Job:    Creates a dictionary of all values of the attribute.
+    ========================================================================================================
+    Output: Dictionary of all values pointing to a list of all the data with that attribute
+    ========================================================================================================
+    '''
+    
+    dictionary= {}    
+    for index in range (len(data_set)): 
+         key = data_set[index][attribute]   
+         dictionary.setdefault(key,[])            
+         dictionary[key].append(data_set[index])
+             
+    return dictionary
+    
+# ======== Test case =============================
+#data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
+#print split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
+#data_set, attr = [[1, 2], [1, 0], [0, 0], [1, 3], [0, 2], [0, 3], [0, 4], [0, 4], [1, 2], [0, 1]], 1
+#print split_on_nominal(data_set, attr) == {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]}
+
         
 def gain_ratio_nominal(data_set, attribute):
     '''
@@ -92,22 +126,26 @@ def gain_ratio_nominal(data_set, attribute):
     Output: Returns gain_ratio. See https://en.wikipedia.org/wiki/Information_gain_ratio
     ========================================================================================================
     '''
-    # getting the highest valued atrribute to look for    
-    attr_max = 0
-    for i in range(len(data_set)):
-        if data_set[i][attribute] > attr_max:
-            attr_max = data_set[i][attribute]
-   
-    # creating the new ordered data set        
-    new_data_set = []
-    new_data_set_temp = []
-    for attr in range(attr_max+1):
-        for j in range(len(data_set)):
-            if data_set[j][attribute] is attr:
-                new_data_set_temp.append(data_set[j])
-        if len(new_data_set_temp) > 0:
-            new_data_set.append(new_data_set_temp)
-        new_data_set_temp = []
+#    # getting the highest valued atrribute to look for    
+#    attr_max = 0
+#    #for key, value in data_set.iteritems():
+#    i= 0 
+#    for i in range(len(data_set[i])):
+#        if data_set[i][attribute] > attr_max:
+#            attr_max = data_set[i][attribute]
+#   
+#    # creating the new ordered data set        
+#    new_data_set = []
+#    new_data_set_temp = []
+#    for attr in range(attr_max+1):
+#        for j in range(len(data_set)):
+#            if data_set[j][attribute] is attr:
+#                new_data_set_temp.append(data_set[j])
+#        if len(new_data_set_temp) > 0:
+#            new_data_set.append(new_data_set_temp)
+#        new_data_set_temp = []
+    pre_data_set = split_on_nominal(data_set, attribute) 
+    new_data_set = dict_to_set(pre_data_set, attribute)
 
     # calculating gain ratio 
     SUM_IG = 0.0  
@@ -129,6 +167,8 @@ def gain_ratio_nominal(data_set, attribute):
 #print gain_ratio_nominal(data_set,attr)== 0.2056423328155741
 #data_set, attr = [[0, 3], [0, 3], [0, 3], [0, 4], [0, 4], [0, 4], [0, 0], [0, 2], [1, 4], [0, 4]], 1
 #print gain_ratio_nominal(data_set,attr)== 0.06409559743967516
+#data_set, attr = [[0, 3], [0, 3], [0, 3], [0, 4], [0, 4], [0, 4], [0, 0], [0, 2], [1, 4], [0, 4], [1, -0.5]], 1
+#print gain_ratio_nominal(data_set,attr)
     
 def split_on_numerical(data_set, attribute, splitting_value):
     '''
@@ -138,7 +178,7 @@ def split_on_numerical(data_set, attribute, splitting_value):
     Job:    Splits data_set into a tuple of two lists, the first list contains the examples where the given
 	attribute has value less than the splitting value, the second list contains the other examples
     ========================================================================================================
-    Output: Tuple of two lists as described above
+    Output: Tuple of two lists as described above (less_than, greater_than_or_equal)
     ========================================================================================================
     '''
     less= []
@@ -287,31 +327,62 @@ def mode(data_set):
 
 
 
-def split_on_nominal(data_set, attribute):
+def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     '''
+    See Textbook for algorithm.
+    Make sure to handle unknown values, some suggested approaches were
+    given in lecture.
     ========================================================================================================
-    Input:  subset of data set, the index for a nominal attribute.
+    Input:  A data_set, attribute_metadata, maximum number of splits to consider for numerical attributes,
+	maximum depth to search to (depth = 0 indicates that this node should output a label)
     ========================================================================================================
-    Job:    Creates a dictionary of all values of the attribute.
+    Output: The node representing the decision tree learned over the given data set
     ========================================================================================================
-    Output: Dictionary of all values pointing to a list of all the data with that attribute
-    ========================================================================================================
+
     '''
+    Theta = 0.01 
     
-    dictionary= {}    
-    for index in range (len(data_set)): 
-         key = data_set[index][attribute]   
-         dictionary.setdefault(key,[])            
-         dictionary[key].append(data_set[index])
-             
-    return dictionary
+    if depth >=  0: 
+        if entropy(data_set) < Theta:
+            # create a node w majority data
+            n0 = Node()
+            n0.label = mode(data_set)
+            
+        else: 
+            # choose best attribute to split on and continue
+            best_attr = pick_best_attribute(data_set, attribute_metadata, numerical_splits_count)
+            
+            # populating the node
+            n1 = Node()            
+            n1.decision_attribute = best_attr[0]
+            n1.label = None
+            n1.name = attribute_metadata[best_attr[0]]['name']
+            n1.is_nominal = attribute_metadata[best_attr[0]]['is_nominal']
+            n1.splitting_value = best_attr[1]
+            
+            # getting new data set for each piece of the split        
+            if attribute_metadata[best_attr[0]]['is_nominal'] is True:
+                new_data_set = split_on_nominal(data_set, best_attr[0])
+                new_data_set = dict_to_set(new_data_set, best_attr[0]) 
+                for i in range(len(new_data_set)):
+                    print new_data_set[i]
+                    #ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)
+            else:
+                new_data_set = split_on_numerical(data_set, best_attr[0], best_attr[1])
+                for i in range(len(new_data_set)):
+                    print new_data_set[i]
+                    #ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)
+
+# NUMERICAL CASE
+attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
+data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
+numerical_splits_count = [5, 5]
+#ID3(data_set, attribute_metadata, numerical_splits_count, 0)
+
+# NOMINAL CASE
+attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}]
+data_set = [[1, 0], [0, 1], [0, -1], [0, -1], [0, 1], [1, 0], [1, 0], [1, 1], [1, 0], [0, 1], [1, -1], [1, 3], [0, 3]]
+numerical_splits_count = [5, 1]
+ID3(data_set, attribute_metadata, numerical_splits_count, 1)
     
-# ======== Test case =============================
-#data_set, attr = [[0, 4], [1, 3], [1, 2], [0, 0], [0, 0], [0, 4], [1, 4], [0, 2], [1, 2], [0, 1]], 1
-#print split_on_nominal(data_set, attr) == {0: [[0, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3]], 4: [[0, 4], [0, 4], [1, 4]]}
-#data_set, attr = [[1, 2], [1, 0], [0, 0], [1, 3], [0, 2], [0, 3], [0, 4], [0, 4], [1, 2], [0, 1]], 1
-#print split_on_nominal(data_set, attr) == {0: [[1, 0], [0, 0]], 1: [[0, 1]], 2: [[1, 2], [0, 2], [1, 2]], 3: [[1, 3], [0, 3]], 4: [[0, 4], [0, 4]]}
-
-
-
 

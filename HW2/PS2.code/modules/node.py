@@ -42,7 +42,14 @@ class Node:
             return 1
             
         else: 
-            return self.children[instance[self.decision_attribute]].classify(instance)
+            if self.is_nominal is True:
+                return self.children[instance[self.decision_attribute]].classify(instance)
+            if self.is_nominal is False:
+                if instance[self.decision_attribute] >= self.splitting_value:
+                    node= 1
+                else:
+                    node= 0
+            return self.children[node].classify(instance)
     
     
     def print_tree(self, indent = 0):
@@ -59,3 +66,42 @@ class Node:
         '''
         pass
 
+def check_classify():
+	n0 = Node()
+	n0.label = 1
+	i = 0;
+	if n0.classify([0, 1, 2]) == 1:
+		print "Passed 1"
+		i += 1
+	else:
+		print "Failed 1"
+	n1 = Node()
+	n1.label = 0
+	n = Node()
+	n.label = None
+	n.decision_attribute = 1
+	n.is_nominal = True
+	n.name = "You saw the attributes what do you think?"
+	n.children = {1: n0, 2: n1}
+	if n.classify([0, 2]) == 0:
+		print "Passed 2"
+		i += 1
+	else:
+		print "Failed 2"
+        nN = Node()
+        nN.decision_attribute = 3
+        nN.is_nominal = False
+        nN.name = "There is more to life than attributes"
+        nN.children = [n1, n]
+        nN.splitting_value = 75.0
+        if nN.classify([0, 1, 0, 81.7]) == 1:
+        	print "Passed 3"
+                i += 1
+        else:
+		print "Failed 3"
+	if i == 3:
+		print "All tests passed"
+	else:
+		print "Not all tests passed, look at classify"
+
+check_classify()
