@@ -157,7 +157,10 @@ def gain_ratio_nominal(data_set, attribute):
         SUM_IV = SUM_IV + ratio*math.log(ratio, 2)
     IG =  entropy(data_set) - SUM_IG
     IV = -SUM_IV
-    return IG/IV
+    if IV == 0:
+        return 0 
+    else: 
+        return IG/IV
     
     
 # ======== Test case =============================
@@ -262,21 +265,27 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
     Output: best attribute, split value if numeric
     ========================================================================================================
     '''
+        
     best= 0
     best_attr = 0
     threshold = None
     # gives # of attributes to choose from
     for i in range(1, len(data_set[0])):
-        if attribute_metadata[i]['is_nominal']:           
-            if gain_ratio_nominal(data_set, i) > best:
-                 best = gain_ratio_nominal(data_set, i)
-                 best_attr = i 
-                 threshold = False
+        
+        # if that attribute's splits counts havent run out
+        if numerical_splits_count[i] > 0:
+            if attribute_metadata[i]['is_nominal']:           
+                if gain_ratio_nominal(data_set, i) > best:
+                     best = gain_ratio_nominal(data_set, i)
+                     best_attr = i 
+                     threshold = False
+            else:
+                if gain_ratio_numeric(data_set, i, 1)[0]> best:
+                    best= gain_ratio_numeric(data_set, i, 1)[0]
+                    best_attr = i 
+                    threshold = gain_ratio_numeric(data_set, i, 1)[1]
         else:
-            if gain_ratio_numeric(data_set, i, 1)[0]> best:
-                best= gain_ratio_numeric(data_set, i, 1)[0]
-                best_attr = i 
-                threshold = gain_ratio_numeric(data_set, i, 1)[1]
+            return 
     return (best_attr, threshold)
     
 
@@ -341,48 +350,88 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
 
     '''
     Theta = 0.01 
+    n0 = Node()
+    #print 'depth: ' + str(depth)
     
-    if depth >=  0: 
+    if depth > 0: 
+        print "entropy at depth " + str(depth) + " is: " + str(entropy(data_set))
         if entropy(data_set) < Theta:
+            print 'minimal entropy reached'
             # create a node w majority data
-            n0 = Node()
             n0.label = mode(data_set)
-            
+            print "label is currently: " + str(n0.label)
+            return n0
         else: 
             # choose best attribute to split on and continue
             best_attr = pick_best_attribute(data_set, attribute_metadata, numerical_splits_count)
             
+            # if we ran out of split counts             
+            if best_attr is None:
+                n0.label = mode(data_set)
+                return n0
+            else: 
+                # increment down that attribute's split count            
+                numerical_splits_count[best_attr[0]] = numerical_splits_count[best_attr[0]] - 1
+            
+            print "best attr is index: " + str(best_attr[0])
+            print "best split is: " + str(best_attr[1])
+            
             # populating the node
-            n1 = Node()            
-            n1.decision_attribute = best_attr[0]
-            n1.label = None
-            n1.name = attribute_metadata[best_attr[0]]['name']
-            n1.is_nominal = attribute_metadata[best_attr[0]]['is_nominal']
-            n1.splitting_value = best_attr[1]
+            n0.decision_attribute = best_attr[0]
+            n0.label = None
+            n0.name = attribute_metadata[best_attr[0]]['name']
+            n0.is_nominal = attribute_metadata[best_attr[0]]['is_nominal']
+            n0.splitting_value = best_attr[1]
+            print "label is currently: " +str(n0.label)
             
             # getting new data set for each piece of the split        
             if attribute_metadata[best_attr[0]]['is_nominal'] is True:
+                print 'the split is nominal'
                 new_data_set = split_on_nominal(data_set, best_attr[0])
                 new_data_set = dict_to_set(new_data_set, best_attr[0]) 
                 for i in range(len(new_data_set)):
-                    print new_data_set[i]
-                    #ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)
+                    #print new_data_set[i]
+                    n0.children.update({i: ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)})
+                
             else:
+                print 'the split is numeric'
                 new_data_set = split_on_numerical(data_set, best_attr[0], best_attr[1])
                 for i in range(len(new_data_set)):
-                    print new_data_set[i]
-                    #ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)
-
+                    #print new_data_set[i]
+                    #print 'depth going into next function is: ' + str(depth-1)
+                    n0.children.update({i:ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)})
+    
+    # if you run out of depth, just label node with majority data    
+    else: 
+        print "oops we ran out of depth"
+        n0.label = mode(data_set)
+        print "label is currently: " + str(n0.label)
+        return n0
+    #print 'label is: ' + str(n0.label)
+    return n0   
+        
 # NUMERICAL CASE
-attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
-data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
-numerical_splits_count = [5, 5]
-#ID3(data_set, attribute_metadata, numerical_splits_count, 0)
+#attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
+#data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
+#numerical_splits_count = [5, 5]
+#n = ID3(data_set, attribute_metadata, numerical_splits_count, 0)
+#print n.label
+        
+#attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
+#data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
+#numerical_splits_count = [1, 1]
+#n = ID3(data_set, attribute_metadata, numerical_splits_count, 5)
+#print (n and [n.classify(x) == x[0] for x in data_set]) 
+#print n and n.classify(data_set[0]) == data_set[0]
+#print n and n.classify(data_set[1]) == data_set[1]
+#print n and n.classify(data_set[2]) == data_set[2]
+#== [True, False, True, True, False, True, True, True, True, True, True]:
+
 
 # NOMINAL CASE
-attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}]
-data_set = [[1, 0], [0, 1], [0, -1], [0, -1], [0, 1], [1, 0], [1, 0], [1, 1], [1, 0], [0, 1], [1, -1], [1, 3], [0, 3]]
-numerical_splits_count = [5, 1]
-ID3(data_set, attribute_metadata, numerical_splits_count, 1)
-    
+#attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "weather",'is_nominal': True}]
+#data_set = [[1, 0], [0, 1], [0, -1], [0, -1], [0, 1], [1, 0], [1, 0], [1, 1], [1, 0], [0, 1], [1, -1], [1, 3], [0, 3]]
+#numerical_splits_count = [5, 1]
+#n2= ID3(data_set, attribute_metadata, numerical_splits_count, 1)
+#print n2.label    
 

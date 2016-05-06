@@ -45,10 +45,12 @@ class Node:
             if self.is_nominal is True:
                 return self.children[instance[self.decision_attribute]].classify(instance)
             if self.is_nominal is False:
+                
                 if instance[self.decision_attribute] >= self.splitting_value:
                     node= 1
                 else:
                     node= 0
+      
             return self.children[node].classify(instance)
     
     
@@ -104,4 +106,4 @@ def check_classify():
 	else:
 		print "Not all tests passed, look at classify"
 
-check_classify()
+#check_classify()
