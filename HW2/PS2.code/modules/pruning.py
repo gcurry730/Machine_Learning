@@ -19,5 +19,11 @@ def validation_accuracy(tree,validation_set):
     '''
     takes a tree and a validation set and returns the accuracy of the set on the given tree
     '''
-    # Your code here
-    pass
+    count = 0
+    total = 0
+    for x in validation_set:
+        total = total + 1
+        if tree.classify(x) == x[0]: 
+            count = count + 1
+    return count/float(total)
+    

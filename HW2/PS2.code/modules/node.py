@@ -43,7 +43,11 @@ class Node:
             
         else: 
             if self.is_nominal is True:
-                return self.children[instance[self.decision_attribute]].classify(instance)
+                try:
+                    return self.children[instance[self.decision_attribute]].classify(instance)
+                except KeyError:
+                    print "I don't know how to classify this nominal example!" 
+            
             if self.is_nominal is False:
                 
                 if instance[self.decision_attribute] >= self.splitting_value:
@@ -51,7 +55,7 @@ class Node:
                 else:
                     node= 0
       
-            return self.children[node].classify(instance)
+                return self.children[node].classify(instance)
     
     
     def print_tree(self, indent = 0):

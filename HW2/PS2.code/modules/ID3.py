@@ -4,6 +4,7 @@ import sys
 #import ID3 
 #from collections import defaultdict
 
+STEPS = 10
 '''
 FUNCTIONS
 '''
@@ -280,10 +281,10 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
                      best_attr = i 
                      threshold = False
             else:
-                if gain_ratio_numeric(data_set, i, 1)[0]> best:
-                    best= gain_ratio_numeric(data_set, i, 1)[0]
+                if gain_ratio_numeric(data_set, i, STEPS)[0]> best:
+                    best= gain_ratio_numeric(data_set, i, STEPS)[0]
                     best_attr = i 
-                    threshold = gain_ratio_numeric(data_set, i, 1)[1]
+                    threshold = gain_ratio_numeric(data_set, i, STEPS)[1]
         else:
             #return
             best_attr = 0
@@ -388,7 +389,7 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
             
             # getting new data set for each piece of the split        
             if attribute_metadata[best_attr[0]]['is_nominal'] is True:
-                #print 'the split is nominal'
+                print 'the split is nominal'
                 new_data_set = split_on_nominal(data_set, best_attr[0])
                 new_data_set = dict_to_set(new_data_set, best_attr[0]) 
                 for i in range(len(new_data_set)):
@@ -396,7 +397,7 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
                     n0.children.update({key: ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)})
                 
             else:
-                #print 'the split is numeric'
+                print 'the split is numeric'
                 new_data_set = split_on_numerical(data_set, best_attr[0], best_attr[1])
                 for i in range(len(new_data_set)):
                     #print new_data_set[i]
@@ -420,13 +421,10 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
 #print n.label
         
 #attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
-#data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
+#data_set = [[1, 0.27], [0, 0.042], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
 #numerical_splits_count = [1, 1]
 #n = ID3(data_set, attribute_metadata, numerical_splits_count, 5)
-#print (n and [n.classify(x) == x[0] for x in data_set]) 
-#print n and n.classify(data_set[0]) == data_set[0]
-#print n and n.classify(data_set[1]) == data_set[1]
-#print n and n.classify(data_set[2]) == data_set[2]
+#print (n and [n.classify(x) == x[0] for x in data_set])  
 #== [True, False, True, True, False, True, True, True, True, True, True]:
 
 
