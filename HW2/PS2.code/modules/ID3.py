@@ -272,7 +272,7 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
     # gives # of attributes to choose from
     for i in range(1, len(data_set[0])):
         
-        # if that attribute's splits counts havent run out
+        # if that attribute's splits counts have NOT run out
         if numerical_splits_count[i] > 0:
             if attribute_metadata[i]['is_nominal']:           
                 if gain_ratio_nominal(data_set, i) > best:
@@ -285,7 +285,9 @@ def pick_best_attribute(data_set, attribute_metadata, numerical_splits_count):
                     best_attr = i 
                     threshold = gain_ratio_numeric(data_set, i, 1)[1]
         else:
-            return 
+            #return
+            best_attr = 0
+            threshold = None
     return (best_attr, threshold)
     
 
@@ -349,32 +351,32 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     ========================================================================================================
 
     '''
-    Theta = 0.01 
+    Theta = 0.001 
     n0 = Node()
-    #print 'depth: ' + str(depth)
     
     if depth > 0: 
-        print "entropy at depth " + str(depth) + " is: " + str(entropy(data_set))
+        #print "entropy at depth " + str(depth) + " is: " + str(entropy(data_set))
         if entropy(data_set) < Theta:
-            print 'minimal entropy reached'
+            #print 'minimal entropy reached'
             # create a node w majority data
             n0.label = mode(data_set)
-            print "label is currently: " + str(n0.label)
+            #print "label is currently: " + str(n0.label)
             return n0
         else: 
             # choose best attribute to split on and continue
             best_attr = pick_best_attribute(data_set, attribute_metadata, numerical_splits_count)
             
             # if we ran out of split counts             
-            if best_attr is None:
+            if best_attr[1] is None:
                 n0.label = mode(data_set)
                 return n0
+                #print "oops we ran out of splits_counts"
             else: 
                 # increment down that attribute's split count            
                 numerical_splits_count[best_attr[0]] = numerical_splits_count[best_attr[0]] - 1
             
-            print "best attr is index: " + str(best_attr[0])
-            print "best split is: " + str(best_attr[1])
+            #print "best attr is index: " + str(best_attr[0])
+            #print "best split is: " + str(best_attr[1])
             
             # populating the node
             n0.decision_attribute = best_attr[0]
@@ -382,19 +384,19 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
             n0.name = attribute_metadata[best_attr[0]]['name']
             n0.is_nominal = attribute_metadata[best_attr[0]]['is_nominal']
             n0.splitting_value = best_attr[1]
-            print "label is currently: " +str(n0.label)
+            #print "label is currently: " +str(n0.label)
             
             # getting new data set for each piece of the split        
             if attribute_metadata[best_attr[0]]['is_nominal'] is True:
-                print 'the split is nominal'
+                #print 'the split is nominal'
                 new_data_set = split_on_nominal(data_set, best_attr[0])
                 new_data_set = dict_to_set(new_data_set, best_attr[0]) 
                 for i in range(len(new_data_set)):
-                    #print new_data_set[i]
-                    n0.children.update({i: ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)})
+                    key =  new_data_set[i][0][1]
+                    n0.children.update({key: ID3(new_data_set[i], attribute_metadata, numerical_splits_count, depth-1)})
                 
             else:
-                print 'the split is numeric'
+                #print 'the split is numeric'
                 new_data_set = split_on_numerical(data_set, best_attr[0], best_attr[1])
                 for i in range(len(new_data_set)):
                     #print new_data_set[i]
@@ -403,9 +405,9 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     
     # if you run out of depth, just label node with majority data    
     else: 
-        print "oops we ran out of depth"
+        #print "oops we ran out of depth"
         n0.label = mode(data_set)
-        print "label is currently: " + str(n0.label)
+        #print "label is currently: " + str(n0.label)
         return n0
     #print 'label is: ' + str(n0.label)
     return n0   
