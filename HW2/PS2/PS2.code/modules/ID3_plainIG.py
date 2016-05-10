@@ -158,18 +158,18 @@ def gain_ratio_nominal(data_set, attribute):
 
     # calculating gain ratio 
     SUM_IG = 0.0  
-    SUM_IV = 0.0
+    #SUM_IV = 0.0
     length = len(new_data_set)
     for index in range (length):
         ratio= len(new_data_set[index])/float(len(data_set))
         SUM_IG = SUM_IG + ratio*entropy(new_data_set[index])
-        SUM_IV = SUM_IV + ratio*math.log(ratio, 2)
+        #SUM_IV = SUM_IV + ratio*math.log(ratio, 2)
     IG =  entropy(data_set) - SUM_IG
-    IV = -SUM_IV
-    if IV == 0:
-        return 0 
-    else: 
-        return IG/IV
+    #IV = -SUM_IV
+    #if IV == 0:
+        #return 0 
+    #else: 
+    return IG
     
     
 # ======== Test case =============================
@@ -233,20 +233,20 @@ def gain_ratio_numeric(data_set, attribute, steps):
         
         # calculating gain ratio 
         SUM_IG = 0.0  
-        SUM_IV = 0.0
+        #SUM_IV = 0.0
        
         for i in range (0,2):
             if len(new_data_set[i]) is 0:
                 SUM_IG = 0
-                SUM_IV = -1
+                #SUM_IV = -1
             else:
                 ratio= len(new_data_set[i])/float(len(data_set))
                 SUM_IG = SUM_IG + ratio*entropy(new_data_set[i])
-                SUM_IV = SUM_IV + ratio*math.log(ratio, 2)
+                #SUM_IV = SUM_IV + ratio*math.log(ratio, 2)
         IG =  entropy(data_set) - SUM_IG
-        IV = -SUM_IV
-        if IG/IV > best:
-            best = IG/IV
+        #IV = -SUM_IV
+        if IG > best:
+            best = IG
             threshold = data_set[index][attribute]
         index = index + steps
 
@@ -345,6 +345,8 @@ def mode(data_set):
 #data_set = [[0],[1],[0],[0]]
 #print mode(data_set) == 0
 
+
+
 def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     '''
     See Textbook for algorithm.
@@ -431,9 +433,7 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
     #print 'label is: ' + str(n0.label)
     #print "Splits counts left: " + str(numerical_splits_count)
     return n0   
-
- 
-      
+        
 #==============NUMERICAL CASES=============================
 #attribute_metadata = [{'name': "winner",'is_nominal': True},{'name': "opprundifferential",'is_nominal': False}]
 #data_set = [[1, 0.27], [0, 0.42], [0, 0.86], [0, 0.68], [0, 0.04], [1, 0.01], [1, 0.33], [1, 0.42], [1, 0.42], [0, 0.51], [1, 0.4]]
@@ -453,5 +453,4 @@ def ID3(data_set, attribute_metadata, numerical_splits_count, depth):
 #data_set = [[1, 0], [0, 1], [0, -1], [0, -1], [0, 1], [1, 0], [1, 0], [1, 1], [1, 0], [0, 1], [1, -1], [1, 3], [0, 3]]
 #numerical_splits_count = [5, 1]
 #n2= ID3(data_set, attribute_metadata, numerical_splits_count, 1)
-#print n2.label    
-
+#print n2.label  
