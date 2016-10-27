@@ -29,7 +29,10 @@ class Node:
         list = [self.children]
         return list
 
-def get_child_string(root):
+global length_prev
+length_prev = 1
+
+def get_child_string(root, length_input):
     list = ''
     if (root.children != None):
         length = len(root.children)
@@ -37,16 +40,21 @@ def get_child_string(root):
         length = 0
     k = 1
     j = 1
-    while (j <= length):
+
+    while (j <= length_input):
+        root2= root.children[j]
         while (k <= length):
-            list = list + str(root.children[k].get_value()) + ' '
+            list = list + str(root2.children[k].get_value()) + ' '
             k = k + 1
-        list = list + get_child_string(root.children[j])
         j = j + 1
+    #list = list + get_child_string(root.children[j])
+
+    list = list + get_child_string(root.children[j], length)
+
     return list
 
 def breadth_first_search(root):
-    list = str(root.value) +' ' + get_child_string(root)
+    list = str(root.value) +' ' + get_child_string(root, 1)
     return list
 
 def tester():
